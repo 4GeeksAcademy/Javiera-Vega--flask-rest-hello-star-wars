@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, ForeignKey
+from sqlalchemy import String, Boolean, ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import List
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -13,13 +14,12 @@ class User(db.Model):
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
     user_planet: Mapped[List["Favorites_Planets"]] = relationship(
-        "favorites_planets",
         back_populates= "user_fav_planets")
     
     user_character: Mapped[List["Favorites_Characters"]] = relationship(
-        "favorites_characters",
         back_populates= "user_fav_characters")
  
 class Planets(db.Model):
@@ -30,12 +30,7 @@ class Planets(db.Model):
     description: Mapped[str] = mapped_column(String (500), nullable=False)
 
     fav_planets: Mapped[List["Favorites_Planets"]] = relationship(
-        "favorites_planets",
         back_populates= "planets_favorites")
-
-    fav_characters: Mapped[List["Favorites_Characters"]] = relationship(
-        "favorites_characters",
-        back_populates= "characters_favorites")
 
 class Characters(db.Model):
     __tablename__ = "characters"
@@ -43,6 +38,9 @@ class Characters(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str] = mapped_column(String (500), nullable=False)
+
+    fav_characters: Mapped[List["Favorites_Characters"]] = relationship(
+        back_populates= "characters_favorites")
 
 class Favorites_Planets(db.Model):
     __tablename__ = "favorites_planets"
