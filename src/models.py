@@ -16,51 +16,74 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
-    user_planet: Mapped[List["Favorites_Planets"]] = relationship(
-        back_populates= "user_fav_planets")
+    user_planet: Mapped[List["Favorites_Planet"]] = relationship(
+        back_populates= "user_fav_planet")
     
-    user_character: Mapped[List["Favorites_Characters"]] = relationship(
-        back_populates= "user_fav_characters")
+    user_people: Mapped[List["Favorites_People"]] = relationship(
+        back_populates= "user_fav_people")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "name": self.name,
+            "email": self.email,
+            "password": self.password
+        }
  
-class Planets(db.Model):
-    __tablename__ = "planets"
+class Planet(db.Model):
+    __tablename__ = "planet"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str] = mapped_column(String (500), nullable=False)
 
-    fav_planets: Mapped[List["Favorites_Planets"]] = relationship(
-        back_populates= "planets_favorites")
+    fav_planet: Mapped[List["Favorites_Planet"]] = relationship(
+        back_populates= "planet_favorites")
 
-class Characters(db.Model):
-    __tablename__ = "characters"
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description
+        }
+
+class People(db.Model):
+    __tablename__ = "people"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str] = mapped_column(String (500), nullable=False)
 
-    fav_characters: Mapped[List["Favorites_Characters"]] = relationship(
-        back_populates= "characters_favorites")
+    fav_people: Mapped[List["Favorites_People"]] = relationship(
+        back_populates= "people_favorites")
 
-class Favorites_Planets(db.Model):
-    __tablename__ = "favorites_planets"
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description
+        }
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    planet_id: Mapped[int] = mapped_column(ForeignKey("planets.id"), nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-
-    user_fav_planets: Mapped["User"] = relationship(back_populates= "user_planet")
-    planets_favorites: Mapped["Planets"] = relationship(back_populates= "fav_planets")
-
-class Favorites_Characters(db.Model):
-    __tablename__ = "favorites_characters"
+class Favorites_Planet(db.Model):
+    __tablename__ = "favorites_planet"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    character_id: Mapped[int] = mapped_column(ForeignKey("characters.id"), nullable=False)
+    planet_id: Mapped[int] = mapped_column(ForeignKey("planet.id"), nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
 
-    user_fav_characters: Mapped["User"] = relationship(back_populates= "user_character")
-    characters_favorites: Mapped["Characters"] = relationship(back_populates= "fav_characters")
+    user_fav_planet: Mapped["User"] = relationship(back_populates= "user_planet")
+    planet_favorites: Mapped["Planet"] = relationship(back_populates= "fav_planet")
+
+class Favorites_People(db.Model):
+    __tablename__ = "favorites_people"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    people_id: Mapped[int] = mapped_column(ForeignKey("people.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+
+    user_fav_people: Mapped["User"] = relationship(back_populates= "user_people")
+    people_favorites: Mapped["People"] = relationship(back_populates= "fav_people")
 
 
 
