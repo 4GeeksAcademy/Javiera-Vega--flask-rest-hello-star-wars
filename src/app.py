@@ -36,7 +36,7 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route('/all-user', methods=['GET'])
+@app.route('/users', methods=['GET'])
 def all_user():
     users = User.query.all()
 
@@ -63,7 +63,7 @@ def save_user():
     
     return jsonify("ok"), 200      
 
-@app.route('/all-people', methods=['GET'])
+@app.route('/people', methods=['GET'])
 def all_people():
 
     URL_PEOPLE = "https://www.swapi.tech/api/people?page=1&limit=20"
@@ -96,7 +96,7 @@ def get_one_people(people_id=None):
     else:
         return jsonify(person.serialize())
 
-@app.route('/all-planets', methods=['GET'])
+@app.route('/planets', methods=['GET'])
 def all_planets():
 
     URL_PLANETS = "https://www.swapi.tech/api/planets?page=1&limit=20"
@@ -120,7 +120,7 @@ def all_planets():
         db.session.rollback()
         return jsonify(f"Error: {error.args}") 
 
-@app.route('/planet/<int:planet_id>', methods=['GET'])
+@app.route('/planets/<int:planet_id>', methods=['GET'])
 def get_one_planet(planet_id=None):
     planet_elem = Planet.query.get(planet_id)
 
@@ -128,6 +128,37 @@ def get_one_planet(planet_id=None):
         return jsonify("Elemento planeta no encontrado"), 400    
     else:
         return jsonify(planet_elem.serialize())
+
+@app.route('/users/favorites', methods=['GET'])
+def user_favorites():
+    body = request.json
+    user_id = body.get('user_id')
+
+    if not user_id:
+        return jsonify("Se debe enviar correctamente el user_id"), 400
+
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify("Usuario no encontrado"), 400
+
+      
+    favorite_people = Favorites_People.query.filter_by(user_id = user_id).all()
+    people_serialized = [fav.people_favorites.serialize() for fav in favorite_people]
+
+    favorite_planet = Favorites_Planet.query.filter_by(user_id = user_id).all()
+    planet_serialized = [fav.planet_favorites.serialize() for fav in favorite_planet]
+
+    return jsonify({
+        "user_id": user_id,
+        "favorites": {
+            "people": people_serialized,
+            "planet": planet_serialized
+        }
+    }), 200
+    
+
+      
+
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
 def add_favorite_people(people_id=None):
@@ -204,5 +235,16 @@ def delete_favorite_planet(planet_id):
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+
+#
+# 
+
+#
+# Adicionalmente, necesitamos crear los siguientes endpoints para que podamos tener usuarios y favoritos en nuestro blog:
+
+
+# [GET] /users/favorites Listar todos los favoritos que pertenecen al usuario actual.
+
 
 
