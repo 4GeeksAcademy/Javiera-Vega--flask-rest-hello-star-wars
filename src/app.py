@@ -141,7 +141,6 @@ def user_favorites():
     if user is None:
         return jsonify("Usuario no encontrado"), 400
 
-      
     favorite_people = Favorites_People.query.filter_by(user_id = user_id).all()
     people_serialized = [fav.people_favorites.serialize() for fav in favorite_people]
 
@@ -154,11 +153,7 @@ def user_favorites():
             "people": people_serialized,
             "planet": planet_serialized
         }
-    }), 200
-    
-
-      
-
+    }), 200   
 
 @app.route('/favorite/people/<int:people_id>', methods=['POST'])
 def add_favorite_people(people_id=None):
